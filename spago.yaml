@@ -1,0 +1,23 @@
+package:
+  name: sha256
+  dependencies:
+    - arrays
+    - console
+    - effect
+    - enums
+    - foldable-traversable
+    - integers
+    - maybe
+    - prelude
+    - strings
+  test:
+    main: Test.Main
+    dependencies: []
+workspace:
+  packageSet:
+    url: https://raw.githubusercontent.com/purescm/purescm/refs/heads/master/package-sets/1.0.0.json
+  extraPackages: {}
+  backend:
+    cmd: purescm
+    args:
+      - "build"
