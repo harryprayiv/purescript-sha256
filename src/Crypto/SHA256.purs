@@ -4,16 +4,6 @@
 -- | Optimized JavaScript FFI implementation using Buffer-native operations.
 -- | All hot paths work directly on Node Buffers with zero intermediate
 -- | Array conversions.
--- |
--- | Usage:
--- | ```purescript
--- | import Crypto.SHA256 (sha256, hmacSha256, toString)
--- |
--- | digest = sha256 "hello world"
--- | hex    = toString digest
--- |
--- | mac = hmacSha256 "secret" "message"
--- | ```
 module Crypto.SHA256
   ( SHA2(..)
   , Digest
