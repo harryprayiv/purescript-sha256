@@ -8,12 +8,9 @@
             "arrays",
             "console",
             "effect",
-            "enums",
             "foldable-traversable",
-            "integers",
             "maybe",
-            "prelude",
-            "strings"
+            "prelude"
           ]
         },
         "test": {
@@ -308,24 +305,6 @@
         "prelude"
       ]
     },
-    "enums": {
-      "type": "git",
-      "url": "https://github.com/purescm/purescript-core.git",
-      "rev": "b5474536977275bda9b1771e06e5f697e0a846d9",
-      "subdir": "enums",
-      "dependencies": [
-        "control",
-        "either",
-        "gen",
-        "maybe",
-        "newtype",
-        "nonempty",
-        "partial",
-        "prelude",
-        "tuples",
-        "unfoldable"
-      ]
-    },
     "exists": {
       "type": "registry",
       "version": "6.0.0",
@@ -382,23 +361,6 @@
         "unsafe-coerce"
       ]
     },
-    "gen": {
-      "type": "registry",
-      "version": "4.0.0",
-      "integrity": "sha256-kyOateeOtQa07vfTMYeSuCKdelgKE1R65fwKkZ10wsY=",
-      "dependencies": [
-        "either",
-        "foldable-traversable",
-        "identity",
-        "maybe",
-        "newtype",
-        "nonempty",
-        "prelude",
-        "tailrec",
-        "tuples",
-        "unfoldable"
-      ]
-    },
     "identity": {
       "type": "registry",
       "version": "6.0.0",
@@ -407,17 +369,6 @@
         "control",
         "invariant",
         "newtype",
-        "prelude"
-      ]
-    },
-    "integers": {
-      "type": "git",
-      "url": "https://github.com/purescm/purescript-core.git",
-      "rev": "b5474536977275bda9b1771e06e5f697e0a846d9",
-      "subdir": "integers",
-      "dependencies": [
-        "maybe",
-        "numbers",
         "prelude"
       ]
     },
@@ -461,17 +412,6 @@
         "prelude",
         "tuples",
         "unfoldable"
-      ]
-    },
-    "numbers": {
-      "type": "git",
-      "url": "https://github.com/purescm/purescript-core.git",
-      "rev": "b5474536977275bda9b1771e06e5f697e0a846d9",
-      "subdir": "numbers",
-      "dependencies": [
-        "functions",
-        "maybe",
-        "prelude"
       ]
     },
     "orders": {
@@ -540,30 +480,6 @@
         "partial",
         "prelude",
         "tailrec",
-        "unsafe-coerce"
-      ]
-    },
-    "strings": {
-      "type": "git",
-      "url": "https://github.com/purescm/purescript-core.git",
-      "rev": "b5474536977275bda9b1771e06e5f697e0a846d9",
-      "subdir": "strings",
-      "dependencies": [
-        "arrays",
-        "control",
-        "either",
-        "enums",
-        "foldable-traversable",
-        "gen",
-        "integers",
-        "maybe",
-        "newtype",
-        "nonempty",
-        "partial",
-        "prelude",
-        "tailrec",
-        "tuples",
-        "unfoldable",
         "unsafe-coerce"
       ]
     },

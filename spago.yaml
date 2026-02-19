@@ -4,12 +4,9 @@ package:
     - arrays
     - console
     - effect
-    - enums
     - foldable-traversable
-    - integers
     - maybe
     - prelude
-    - strings
   test:
     main: Test.Main
     dependencies: []
