@@ -1,13 +1,14 @@
-module Test.SHA256 where
+module Test.Crypto.SHA256 where
 
 import Prelude
 
-import Crypto.SHA256 (SHA2(..), hash, toString, fromHex)
+import Crypto.SHA256 (SHA2(..), hash, toString, fromHex, hmacSha256, hmacSha256Buf)
 import Data.Array as A
 import Data.Foldable (for_)
 import Data.Maybe (Maybe(..))
 import Effect (Effect)
 import Effect.Console (log)
+import Node.Buffer as Buffer
 
 type TestCase =
   { name     :: String
@@ -46,7 +47,30 @@ hashStr variant = toString <<< hash variant
 
 main :: Effect Unit
 main = do
-  log "SHA-2 (FIPS 180-4) Test Suite — purescm / Chez Scheme backend\n"
+  log "SHA-2 (FIPS 180-4) Test Suite\n"
+
+  -- Build byte-level test inputs as Buffers (effectful)
+  millionAs   <- Buffer.fromArray (A.replicate 1000000 0x61)
+  fiftyFiveAs <- Buffer.fromArray (A.replicate 55 0x61)
+  fiftySixAs  <- Buffer.fromArray (A.replicate 56 0x61)
+  deadbeef    <- Buffer.fromArray [0xde, 0xad, 0xbe, 0xef]
+
+  -- HMAC key/data Buffers (RFC 4231)
+  tc1Key  <- Buffer.fromArray (A.replicate 20 0x0b)
+  tc1Data <- Buffer.fromArray [0x48, 0x69, 0x20, 0x54, 0x68, 0x65, 0x72, 0x65]
+  tc3Key  <- Buffer.fromArray (A.replicate 20 0xaa)
+  tc3Data <- Buffer.fromArray (A.replicate 50 0xdd)
+  tc4Key  <- Buffer.fromArray (A.range 1 25)
+  tc4Data <- Buffer.fromArray (A.replicate 50 0xcd)
+  tc6Key  <- Buffer.fromArray (A.replicate 131 0xaa)
+  tc6Data <- Buffer.fromArray
+    [ 0x54, 0x65, 0x73, 0x74, 0x20, 0x55, 0x73, 0x69, 0x6e, 0x67, 0x20, 0x4c
+    , 0x61, 0x72, 0x67, 0x65, 0x72, 0x20, 0x54, 0x68, 0x61, 0x6e, 0x20, 0x42
+    , 0x6c, 0x6f, 0x63, 0x6b, 0x2d, 0x53, 0x69, 0x7a, 0x65, 0x20, 0x4b, 0x65
+    , 0x79, 0x20, 0x2d, 0x20, 0x48, 0x61, 0x73, 0x68, 0x20, 0x4b, 0x65, 0x79
+    , 0x20, 0x46, 0x69, 0x72, 0x73, 0x74
+    ]
+
   runTests
     -- SHA-256: NIST FIPS 180-4 §B.1 — empty
     [ { name: "SHA-256(\"\")"
@@ -74,7 +98,7 @@ main = do
 
     -- SHA-256: 1 million 'a's
     , { name: "SHA-256(1M × 0x61)"
-      , result: toString (hash SHA2_256 (A.replicate 1000000 0x61))
+      , result: toString (hash SHA2_256 millionAs)
       , expected: "cdc76e5c9914fb9281a1c7e284d73e67f1809a48a497200e046d39ccc7112cd0"
       }
 
@@ -86,19 +110,19 @@ main = do
 
     -- SHA-256: 55 bytes — exactly one block after padding (55+1+8=64)
     , { name: "SHA-256(55 × 0x61, 1 block)"
-      , result: toString (hash SHA2_256 (A.replicate 55 0x61))
+      , result: toString (hash SHA2_256 fiftyFiveAs)
       , expected: "9f4390f8d30c2dd92ec9f095b65e2b9ae9b0a925a5258e241c9f1e910f734318"
       }
 
     -- SHA-256: 56 bytes — boundary, needs second block for length
     , { name: "SHA-256(56 × 0x61, 2 blocks)"
-      , result: toString (hash SHA2_256 (A.replicate 56 0x61))
+      , result: toString (hash SHA2_256 fiftySixAs)
       , expected: "b35439a4ac6f0948b6d6f9e3c6af0f5f590ce20f1bde7090ef7970686ec6738a"
       }
 
     -- SHA-256: raw byte array input
     , { name: "SHA-256([0xde,0xad,0xbe,0xef])"
-      , result: toString (hash SHA2_256 [0xde, 0xad, 0xbe, 0xef])
+      , result: toString (hash SHA2_256 deadbeef)
       , expected: "5f78c33274e43fa9de5659265c1d917e25c03722dcb0b8d27db8d5feaa813953"
       }
 
@@ -134,5 +158,35 @@ main = do
     , { name: "fromHex roundtrip"
       , result: show (map toString (fromHex (toString (hash SHA2_256 "abc"))))
       , expected: show (Just (toString (hash SHA2_256 "abc")))
+      }
+
+    -- HMAC-SHA256: RFC 4231 Test Case 1 — key=20×0x0b, data="Hi There"
+    , { name: "HMAC-SHA256 (RFC4231 TC1)"
+      , result: toString (hmacSha256Buf tc1Key tc1Data)
+      , expected: "b0344c61d8db38535ca8afceaf0bf12b881dc200c9833da726e9376c2e32cff7"
+      }
+
+    -- HMAC-SHA256: RFC 4231 TC2 — key="Jefe", data="what do ya want for nothing?"
+    , { name: "HMAC-SHA256 (RFC4231 TC2)"
+      , result: toString (hmacSha256 "Jefe" "what do ya want for nothing?")
+      , expected: "5bdcc146bf60754e6a042426089575c75a003f089d2739839dec58b964ec3843"
+      }
+
+    -- HMAC-SHA256: RFC 4231 TC3 — key=20×0xaa, data=50×0xdd
+    , { name: "HMAC-SHA256 (RFC4231 TC3)"
+      , result: toString (hmacSha256Buf tc3Key tc3Data)
+      , expected: "773ea91e36800e46854db8ebd09181a72959098b3ef8c122d9635514ced565fe"
+      }
+
+    -- HMAC-SHA256: RFC 4231 TC4 — key=0x01..0x19, data=50×0xcd
+    , { name: "HMAC-SHA256 (RFC4231 TC4)"
+      , result: toString (hmacSha256Buf tc4Key tc4Data)
+      , expected: "82558a389a443c0ea4cc819899f2083a85f0faa3e578f8077a2e3ff46729665b"
+      }
+
+    -- HMAC-SHA256: RFC 4231 TC6 — key=131×0xaa (key > block size)
+    , { name: "HMAC-SHA256 (RFC4231 TC6, long key)"
+      , result: toString (hmacSha256Buf tc6Key tc6Data)
+      , expected: "60e431591ee0b67f0d8a26aacbf5b77f8e0bc6213728c5140546040f0ee37f54"
       }
     ]

@@ -1,16 +1,21 @@
 module Test.Main where
 
 import Prelude
+
+import Data.Array as A
 import Effect (Effect)
 import Effect.Console (log)
-import Test.SHA256 as SHA256Tests
-import Test.SHA256.Bench as Bench
+import Test.Crypto.SHA256 as SHA256Tests
+import Test.Crypto.SHA256.Bench as Bench
 
-foreign import hasBenchFlag :: Boolean
+foreign import argv :: Array String
 
 main :: Effect Unit
 main = do
+  let args = argv
   SHA256Tests.main
-  when hasBenchFlag do
+  if A.elem "--bench" args then do
     log ""
     Bench.benchSuite
+  else
+    log "\n(run with --bench to include benchmarks)"
